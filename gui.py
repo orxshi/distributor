@@ -4,6 +4,8 @@ import main as mn
 import tkSimpleDialog
 import tkMessageBox
 import subprocess
+import tkFileDialog
+import os as os
 
 class QuestionList(Toplevel):
     def __init__(self, master, index):
@@ -222,9 +224,27 @@ class Subject(Toplevel):
         self.withdraw();
 
 
+class StatusBar(Frame):
+
+    def __init__(self, master):
+        Frame.__init__(self, master)
+        self.label = Label(self, bd=1, relief=SUNKEN, anchor=W)
+        self.label.pack(fill=X)
+
+    def set(self, format, *args):
+        self.label.config(text=format % args)
+        self.label.update_idletasks()
+
+    def clear(self):
+        self.label.config(text="")
+        self.label.update_idletasks()
+
+
 class MainWindow(Tk):
     subject_window = None
     student_window = None
+    saveasdialog = None
+    filename = ""
 
     def __init__(self):
 	Tk.__init__(self)
@@ -233,6 +253,7 @@ class MainWindow(Tk):
         self.menubar = Menu(self)
         filemenu = Menu(self.menubar, tearoff=0)
         filemenu.add_command(label="Save", command=self.save)
+        filemenu.add_command(label="Save as", command=self.saveas)
         filemenu.add_command(label="Load", command=self.load)
         filemenu.add_command(label="Generate", command=self.generate)
         filemenu.add_command(label="Quit", command=self.quit)
@@ -242,6 +263,9 @@ class MainWindow(Tk):
         windowmenu.add_command(label="Student", command=self.open_student_window)
         self.menubar.add_cascade(label="Window", menu=windowmenu)
         self.config(menu=self.menubar)
+        #self.status = StatusBar(self)
+        #self.status.grid(row=0, column=0)
+        #self.status.pack(side=BOTTOM, fill=X)
 
     def generate(self):
         mn.distribute()
@@ -263,9 +287,13 @@ class MainWindow(Tk):
             self.student_window.deiconify()
 
     def load(self):
+        ftypes = [('Data files', '*.dat'), ('All files', '*')]
+        self.filename = tkFileDialog.askopenfilename(filetypes=ftypes, defaultextension=".dat")
+        if not self.filename:
+            return
         del mn.subjects[:]
         del mn.students[:]
-        f = open('save.dat', 'r')
+        f = open(self.filename, "r+")
         size = int(f.readline().strip())
         for i in range(size):
             name = f.readline().strip()
@@ -280,6 +308,7 @@ class MainWindow(Tk):
                 q = f.readline().strip()
                 s = f.readline().strip()
                 mn.subjects[-1].q.append(mn.Question(q=q, s=s))
+        f.close()
         #
         self.open_subject_window()
         self.subject_window.tree.delete(*self.subject_window.tree.get_children())
@@ -290,9 +319,7 @@ class MainWindow(Tk):
         for stu in mn.students:
             self.student_window.tree.insert("", 'end', text='', values=(stu.name, stu.exc))
 
-
-    def save(self):
-        f = open('save.dat', 'w')
+    def write(self, f):
         f.write(str(len(mn.students))+"\n")
         for stu in mn.students:
             f.write(stu.name+"\n")
@@ -304,6 +331,27 @@ class MainWindow(Tk):
             for que in sub.q:
                 f.write(que.q+"\n")
                 f.write(que.s+"\n")
+        f.close()
+
+    def saveas(self):
+        ftypes = [('Data files', '*.dat'), ('All files', '*')]
+        self.filename = tkFileDialog.asksaveasfilename(filetypes=ftypes, defaultextension=".dat")
+        if not self.filename:
+            return
+        dirname = os.path.dirname(self.filename)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        f = open(self.filename, "w+")
+        self.write(f)
+
+    def save(self):
+        if not self.filename:
+            self.saveas()
+        else:
+            f = open(self.filename, "w+")
+            f.seek(0)
+            f.truncate()
+            self.write(f)
 
 
 app = MainWindow()
