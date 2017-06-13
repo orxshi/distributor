@@ -13,6 +13,8 @@ class QuestionList(Toplevel):
         self.index = index
         self.protocol('WM_DELETE_WINDOW', self.cancel)
         self.resizable(0,0)
+        self.geometry("+%d+%d" % (master.winfo_rootx()+50,
+                                  master.winfo_rooty()+50)) 
 	self.title('Question List')
         self.frame = []
         self.text = []
@@ -82,35 +84,83 @@ class Question(Toplevel):
         self.destroy()
 
 
-class Student(Toplevel):
+#class Student(Toplevel):
+class Student(LabelFrame):
     name_entry = None
     exc_entry = None
     def __init__(self, master):
-	Toplevel.__init__(self)
-	self.title('Student')
-        self.resizable(0,0)
-        self.upperframe = Frame(self, pady=10)
-        self.upperframe.grid(row=1, column=0)
-        self.name_entry = Entry(self.upperframe)
-        self.name_entry.grid(row=1, column=0)
-        self.exc_entry = Entry(self.upperframe)
-        self.exc_entry.grid(row=1, column=1)
-        Label(self.upperframe, text="Name").grid(row=0, column=0)
-        Label(self.upperframe, text="Excluded subject").grid(row=0, column=1)
-        self.protocol('WM_DELETE_WINDOW', self.quit)
-	Button(self.upperframe, text='Add', command=self.add_student).grid(row=1, column=2, sticky=W, pady=4)
+	#Toplevel.__init__(self)
+	LabelFrame.__init__(self, master, text="Student")
+	#self.title('Student')
+        #self.resizable(0,0)
+        self.upperframe = Frame(self, pady=0)
+        self.upperframe.grid(row=0, column=0)
+        self.name_entry = Entry(self.upperframe, name="nameentry")
+        self.name_entry.grid(row=0, column=0)
+        #self.name_entry.bind('<FocusIn>', lambda event, n=self.name_entry: self.on_entry_click(event, n))
+        #self.name_entry.bind('<FocusOut>', lambda event, n=self.name_entry: self.on_entry_unclick(event, n))
+        #self.name_entry.bind("<Key>", lambda event, n=self.name_entry: self.type(event, n))
+        self.name_entry.bind('<FocusIn>', self.on_entry_click)
+        self.name_entry.bind('<FocusOut>', self.on_entry_unclick_ne)
+        self.name_entry.bind("<Key>", self.type)
+        self.name_entry.config(fg='gray')
+        self.name_entry.insert(END, "Name")
+        self.exc_entry = Entry(self.upperframe, name="excentry")
+        self.exc_entry.grid(row=0, column=1)
+        #self.exc_entry.bind('<FocusIn>', lambda event, n=self.exc_entry: self.on_entry_click(event, n))
+        #self.exc_entry.bind('<FocusOut>', lambda event, n=self.exc_entry: self.on_entry_unclick(event, n))
+        #self.exc_entry.bind("<Key>", lambda event, n=self.exc_entry: self.type(event, n))
+        self.exc_entry.bind('<FocusIn>', self.on_entry_click)
+        self.exc_entry.bind('<FocusOut>', self.on_entry_unclick_ee)
+        self.exc_entry.bind("<Key>", self.type)
+        self.exc_entry.config(fg='gray')
+        self.exc_entry.insert(END, "Excluded subject")
+        #self.protocol('WM_DELETE_WINDOW', self.quit)
+	Button(self.upperframe, text='Add', command=self.add_student).grid(row=0, column=2, sticky=W, pady=10)
 	#Button(self, text='Delete', command=self.delete).grid(row=1, column=1, sticky=W, pady=4)
         self.tree = ttk.Treeview(self)
         self.tree['show'] = 'headings'
         self.tree["columns"]=("name", "exc")
         self.tree.heading("name", text="Name")
         self.tree.heading("exc", text="Excluded subject")
-        self.tree.grid(row=2, column=0)
+        self.tree.grid(row=1, column=0)
         self.tree.bind("<Button-3>", self.popup)
-	Button(self, text='Close', command=self.withdraw).grid(row=3, column=0, sticky=W, pady=4)
+	#Button(self, text='Close', command=self.withdraw).grid(row=3, column=0, sticky=W, pady=4)
 
         self.aMenu = Menu(self, tearoff=0)
         self.aMenu.add_command(label="Delete", command=self.delete)
+
+    def type(self, event):
+        event.widget.config(fg='black')
+
+    #def on_entry_click(self, event, entry):
+    def on_entry_click(self, event):
+        #if entry.get() == "Name" or entry.get() == "Excluded subject":
+        if event.widget.get() == "Name" or event.widget.get() == "Excluded subject":
+        #if (entry.name() == "nameentry" and entry.get() == "Name") or (entry.name() == "excentry" and entry.get() == "Excluded subject"):
+        #if entry.get() == "Name":
+        #if self.firstclick: # if this is the first time they clicked it
+            #self.firstclick = False
+            event.widget.delete(0, "end") # delete all the text in the entry
+            event.widget.config(fg='gray')
+        else:
+            event.widget.config(fg='black')
+
+
+    #def on_entry_unclick(self, event, entry):
+    def on_entry_unclick_ne(self, event):
+        if len(event.widget.get()) == 0:
+            event.widget.insert(END, "Name")
+            event.widget.config(fg='gray')
+        else:
+            event.widget.config(fg='black')
+
+    def on_entry_unclick_ee(self, event):
+        if len(event.widget.get()) == 0:
+            event.widget.insert(END, "Excluded subject")
+            event.widget.config(fg='gray')
+        else:
+            event.widget.config(fg='black')
 
     def quit(self):
         self.withdraw();
@@ -130,7 +180,8 @@ class Student(Toplevel):
             self.aMenu.tk_popup(event.x_root, event.y_root)
 
 
-class Subject(Toplevel):
+#class Subject(Toplevel):
+class Subject(LabelFrame):
     nsubject = 3
     entry = None
     subject = [None] * nsubject
@@ -138,20 +189,26 @@ class Subject(Toplevel):
     list_size = 0
 
     def __init__(self, master):
-	Toplevel.__init__(self)
-	self.title('Subject')
-        self.resizable(0,0)
-        self.upperframe = Frame(self, pady=10)
+	#Toplevel.__init__(self)
+	LabelFrame.__init__(self, master, text="Subject")
+	#self.title('Subject')
+        #self.resizable(0,0)
+        self.upperframe = Frame(self, pady=0)
         self.upperframe.grid(row=0, column=0)
-        Label(self.upperframe, text="Subject: ").grid(row=0, column=0)
-        self.protocol('WM_DELETE_WINDOW', self.quit)
+        #Label(self.upperframe, text="Subject: ").grid(row=0, column=0)
+        #self.protocol('WM_DELETE_WINDOW', self.quit)
 
         self.entry = Entry(self.upperframe)
-        self.entry.grid(row=0, column=1)
+        self.entry.insert(END, "Subject")
+        self.entry.grid(row=0, column=0)
+        self.entry.bind('<FocusIn>', self.on_entry_click)
+        self.entry.bind('<FocusOut>', self.on_entry_unclick)
+        self.entry.bind("<Key>", self.type)
+        self.entry.config(fg='gray')
         self.question_button = Button(self.upperframe, text='Add', command=self.add_subject)
-        self.question_button.grid(row=0, column=2)
+        self.question_button.grid(row=0, column=1, sticky=W, pady=10)
 
-	Button(self, text='Close', command=self.withdraw).grid(row=2, column=0, sticky=W, pady=4)
+	#Button(self, text='Close', command=self.withdraw).grid(row=2, column=0, sticky=W, pady=4)
 
         self.tree = ttk.Treeview(self)
         self.tree['show'] = 'headings'
@@ -168,6 +225,25 @@ class Subject(Toplevel):
         self.aMenu.add_command(label="Remove subject", command=self.remove_subject)
         self.aMenu.add_command(label="Add question", command=self.add_question)
         self.aMenu.add_command(label="See questions", command=self.see_questions)
+
+    def type(self, event):
+        self.entry.config(fg='black')
+
+    def on_entry_click(self, event):
+        if self.entry.get() == "Subject":
+        #if self.firstclick: # if this is the first time they clicked it
+            #self.firstclick = False
+            self.entry.delete(0, "end") # delete all the text in the entry
+            self.entry.config(fg='gray')
+        else:
+            self.entry.config(fg='black')
+
+    def on_entry_unclick(self, event):
+        if len(self.entry.get()) == 0:
+            self.entry.insert(END, "Subject")
+            self.entry.config(fg='gray')
+        else:
+            self.entry.config(fg='black')
 
     def edit_subject_name(self):
         item = self.tree.selection()[0]
@@ -192,6 +268,7 @@ class Subject(Toplevel):
             tkMessageBox.showinfo("Information", "There is no question in this subject")
             return
         ql = QuestionList(self, self.tree.index(item))
+        ql.grab_set()
         ql.wait_window()
         first_val = self.tree.item(item, "values")[0]
         self.tree.item(item, values=(first_val, len(mn.subjects[self.tree.index(item)].q)))
@@ -201,6 +278,8 @@ class Subject(Toplevel):
         #self.existing_subjects.insert(END, self.entry.get())
         self.tree.insert("", len(mn.subjects), text='', values=(self.entry.get(), 0))
         self.list_size = self.list_size + 1
+        self.entry.delete(0, "end") # delete all the text in the entry
+        self.entry.config(fg='gray')
 
     def remove_subject(self):
         #index = self.existing_subjects.curselection()
@@ -248,8 +327,37 @@ class MainWindow(Tk):
 
     def __init__(self):
 	Tk.__init__(self)
-	self.title('Main')
+	self.title('Distributor')
         self.resizable(0,0)
+        w = 900 # width for the Tk root
+        h = 345 # height for the Tk root
+
+        # get screen width and height
+        ws = self.winfo_screenwidth() # width of the screen
+        hs = self.winfo_screenheight() # height of the screen
+
+        # calculate x and y coordinates for the Tk root window
+        x = (ws/2) - (w/2)
+        y = (hs/2) - (h/2)
+
+        # set the dimensions of the screen 
+        # and where it is placed
+        self.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        #self.geometry("900x500")
+        #self.fr_menu = Frame(self)
+        #self.fr_menu.grid(row=0, column=0)
+        #self.menubar = Menu(self.fr_menu)
+        #self.fr_subject = Frame(self)
+        #self.fr_student = Frame(self)
+        #self.fr_subject.grid(row=0, column=0)
+        #self.fr_student.grid(row=0, column=1)
+
+        self.subject_window = Subject(self)
+        self.subject_window.grid(row=0, column=0, padx=(30,15), pady=(20,20))
+
+        self.student_window = Student(self)
+        self.student_window.grid(row=0, column=1, padx=(15,30), pady=(20,20))
+
         self.menubar = Menu(self)
         filemenu = Menu(self.menubar, tearoff=0)
         filemenu.add_command(label="Save", command=self.save)
@@ -258,21 +366,27 @@ class MainWindow(Tk):
         filemenu.add_command(label="Generate", command=self.generate)
         filemenu.add_command(label="Quit", command=self.quit)
         self.menubar.add_cascade(label="File", menu=filemenu)
-        windowmenu = Menu(self.menubar, tearoff=0)
-        windowmenu.add_command(label="Subject", command=self.open_subject_window)
-        windowmenu.add_command(label="Student", command=self.open_student_window)
-        self.menubar.add_cascade(label="Window", menu=windowmenu)
+        #windowmenu = Menu(self.menubar, tearoff=0)
+        #windowmenu.add_command(label="Subject", command=self.open_subject_window)
+        #windowmenu.add_command(label="Student", command=self.open_student_window)
+        #self.menubar.add_cascade(label="Window", menu=windowmenu)
         self.config(menu=self.menubar)
-        #self.status = StatusBar(self)
-        #self.status.grid(row=0, column=0)
+        self.status = StatusBar(self)
+        self.status.grid(row=1, column=0, columnspan=2, sticky=W+E)
         #self.status.pack(side=BOTTOM, fill=X)
 
     def generate(self):
         mn.distribute()
         mn.generate_latex()
-        cmd = ['pdflatex', '-interaction', 'nonstopmode', 'jav.tex']
-        proc = subprocess.Popen(cmd)
-        proc.communicate()
+	if os.name == 'posix':
+	    cmd = ['pdflatex', '-interaction', 'nonstopmode', 'jav.tex']
+	    proc = subprocess.Popen(cmd)
+	    proc.communicate()
+	    #cmd = ['rm *.tex *.log *.aux']
+	    #proc = subprocess.Popen(cmd)
+	    os.system('rm *.tex *.log *.aux')
+	    os.system('evince jav.pdf')
+	    self.status.set("Generated jav.pdf successfully")
 
     def open_subject_window(self):
         if self.subject_window is None:
@@ -310,14 +424,15 @@ class MainWindow(Tk):
                 mn.subjects[-1].q.append(mn.Question(q=q, s=s))
         f.close()
         #
-        self.open_subject_window()
+        #self.open_subject_window()
         self.subject_window.tree.delete(*self.subject_window.tree.get_children())
         for sub in mn.subjects:
             self.subject_window.tree.insert("", 'end', text='', values=(sub.name, len(sub.q)))
-        self.open_student_window()
+        #self.open_student_window()
         self.student_window.tree.delete(*self.student_window.tree.get_children())
         for stu in mn.students:
             self.student_window.tree.insert("", 'end', text='', values=(stu.name, stu.exc))
+        self.status.set("Loaded " + os.path.basename(os.path.normpath(self.filename)))
 
     def write(self, f):
         f.write(str(len(mn.students))+"\n")
@@ -343,6 +458,7 @@ class MainWindow(Tk):
             os.makedirs(dirname)
         f = open(self.filename, "w+")
         self.write(f)
+        self.status.set("Saved as " + os.path.basename(os.path.normpath(self.filename)))
 
     def save(self):
         if not self.filename:
@@ -352,6 +468,7 @@ class MainWindow(Tk):
             f.seek(0)
             f.truncate()
             self.write(f)
+        self.status.set("Saved to " + os.path.basename(os.path.normpath(self.filename)))
 
 
 app = MainWindow()

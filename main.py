@@ -58,7 +58,7 @@ students = []
 def distribute():
     for stu in students:
         while len(stu.q) != num_que_per_stu:
-            if all(top != sub.name for top in stu.t) is False:
+            if all(top != sub.name for sub in subjects for top in stu.t) is False:
                 break
             sb = min([sub for sub in subjects if stu.exc != sub.name and all(top != sub.name for top in stu.t)],key=attrgetter('f'))
             #nMulChoice = stu.q.mulChoice.count(True)
