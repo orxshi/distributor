@@ -9,8 +9,9 @@ class StatusBar(Frame):
 
     def set(self, format, *args):
         self.label.config(text=format % args)
-        self.label.update_idletasks()
+        #self.label.update_idletasks()
 
     def clear(self):
-        self.label.config(text="")
-        self.label.update_idletasks()
+        #self.label.config(text="")
+        self.label.config(text="aaaa")
+        #self.label.update_idletasks()

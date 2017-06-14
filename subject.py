@@ -11,6 +11,11 @@ class Subject:
         self.q = list()
         self.name = name
 
+    def edit_name(self, newname):
+        self.name = newname
+        for i, que in enumerate(self.q):
+            que.s = '\\' + str(self.name) + chr(i + ord('a'))
+
     def add_question(self, mulChoice, que=None):
         #self.q.append(Question(q=que, s='{\\' + str(self.name) + chr(len(self.q) + ord('a')) + '}', mulChoice=mulChoice))
         self.q.append(Question(q=que, s='\\' + str(self.name) + chr(len(self.q) + ord('a')), mulChoice=mulChoice))

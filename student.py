@@ -5,6 +5,12 @@ class Student:
         self.exc = exc
         self.name = name
 
+    def edit_name(self, newname):
+        self.name = newname
+
+    def edit_exc(self, newexc):
+        self.exc = newexc
+
 def add_mul_students(students, count, *arg):
     if len(arg) == 1:
         for i in range(0,count):

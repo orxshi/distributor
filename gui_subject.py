@@ -78,7 +78,8 @@ class Subject(LabelFrame):
         name = tkSimpleDialog.askstring("Edit subject name", "Subject:", parent=self, initialvalue=name)
         if name:
             name = name.strip()
-            mn.subjects[self.tree.index(item)].name = name
+            #mn.subjects[self.tree.index(item)].name = name
+            mn.subjects[self.tree.index(item)].edit_name(name)
             second_val = self.tree.item(item, "values")[1]
             self.tree.item(item, values=(name, second_val))
 
@@ -114,6 +115,10 @@ class Subject(LabelFrame):
         selected_item = self.tree.selection()[0]
         del mn.subjects[self.tree.index(selected_item)]
         self.tree.delete(selected_item)
+
+    def delete_all(self):
+        del mn.subjects[:]
+        self.tree.delete(*self.tree.get_children())
 
     def add_question(self):
         #index = self.existing_subjects.curselection()

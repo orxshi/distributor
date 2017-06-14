@@ -1,6 +1,7 @@
 from Tkinter import *
 import ttk
 import main as mn
+import tkSimpleDialog
 
 class Student(LabelFrame):
     name_entry = None
@@ -45,7 +46,29 @@ class Student(LabelFrame):
 	#Button(self, text='Close', command=self.withdraw).grid(row=3, column=0, sticky=W, pady=4)
 
         self.aMenu = Menu(self, tearoff=0)
+        self.aMenu.add_command(label="Edit student name", command=self.edit_student_name)
+        self.aMenu.add_command(label="Edit excluded subject", command=self.edit_exc)
         self.aMenu.add_command(label="Delete", command=self.delete)
+
+    def edit_student_name(self):
+        item = self.tree.selection()[0]
+        name = self.tree.item(item, "values")[0]
+        exc = self.tree.item(item, "values")[1]
+        name = tkSimpleDialog.askstring("Edit student name", "Name:", parent=self, initialvalue=name)
+        if name:
+            name = name.strip()
+            mn.students[self.tree.index(item)].edit_name(name)
+            self.tree.item(item, values=(name, exc))
+
+    def edit_exc(self):
+        item = self.tree.selection()[0]
+        name = self.tree.item(item, "values")[0]
+        exc = self.tree.item(item, "values")[1]
+        exc = tkSimpleDialog.askstring("Edit excluded subject", "Subject:", parent=self, initialvalue=exc)
+        if exc:
+            exc = exc.strip()
+            mn.students[self.tree.index(item)].edit_exc(exc)
+            self.tree.item(item, values=(name, exc))
 
     def type(self, event):
         event.widget.config(fg='black')
@@ -107,6 +130,10 @@ class Student(LabelFrame):
         selected_item = self.tree.selection()[0]
         del mn.students[self.tree.index(selected_item)]
         self.tree.delete(selected_item)
+
+    def delete_all(self):
+        del mn.students[:]
+        self.tree.delete(*self.tree.get_children())
 
     def popup(self, event):
         item = self.tree.identify("item", event.x, event.y)

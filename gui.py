@@ -1,11 +1,10 @@
 import main as mn
-import tkSimpleDialog
 import tkMessageBox
 import subprocess
-import tkFileDialog
 import os as os
 from gui_subject import *
 from gui_status_bar import *
+import tkFileDialog
 
 class MainWindow(Tk):
     subject_window = None
@@ -48,6 +47,7 @@ class MainWindow(Tk):
 
         self.menubar = Menu(self)
         filemenu = Menu(self.menubar, tearoff=0)
+        filemenu.add_command(label="New", command=self.new)
         filemenu.add_command(label="Save", command=self.save)
         filemenu.add_command(label="Save as", command=self.saveas)
         filemenu.add_command(label="Load", command=self.load)
@@ -70,7 +70,7 @@ class MainWindow(Tk):
 	    cmd = ['pdflatex', '-interaction', 'nonstopmode', 'jav.tex']
 	    proc = subprocess.Popen(cmd)
 	    proc.communicate()
-	    os.system('rm *.tex *.log *.aux')
+	    #os.system('rm *.tex *.log *.aux')
 	    os.system('evince jav.pdf')
 	elif os.name == 'nt':
 	    cmd = ['pdflatex', '-interaction', 'nonstopmode', 'jav.tex']
@@ -161,6 +161,15 @@ class MainWindow(Tk):
             f.truncate()
             self.write(f)
         self.status.set("Saved to " + os.path.basename(os.path.normpath(self.filename)))
+
+    def new(self):
+        self.subject_window.delete_all()
+        self.student_window.delete_all()
+        self.saveasdialog = None
+        self.filename = ""
+        self.status.set("New file opened")
+        self.after(3000, self.status.clear())
+
 
 
 app = MainWindow()

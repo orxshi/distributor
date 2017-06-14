@@ -55,12 +55,17 @@ students = []
 #students.append(Student(name='Mawada A. M. Enfiss', exc='carter'))
 #students.append(Student(name='Sevar S. Salh', exc='carter'))
 
+
 def distribute():
+    print(len(subjects))
     for stu in students:
         while len(stu.q) != num_que_per_stu:
-            if all(top != sub.name for sub in subjects for top in stu.t) is False:
+            #if all(top != sub.name for sub in subjects for top in stu.t) is False:
+                #break
+            subs = [sub for sub in subjects if stu.exc != sub.name and all(top != sub.name for top in stu.t)]
+            if len(subs) == 0:
                 break
-            sb = min([sub for sub in subjects if stu.exc != sub.name and all(top != sub.name for top in stu.t)],key=attrgetter('f'))
+            sb = min(subs,key=attrgetter('f'))
             #nMulChoice = stu.q.mulChoice.count(True)
             nMulChoice = sum(que.mulChoice is True for que in stu.q)
             if nMulChoice is 0:
@@ -107,6 +112,8 @@ def generate_latex():
                 f.write('{' + q.s + '}')
             else:
                 f.write('[' + q.s + ']')
+        if len(stu.q) == 0:
+            f.write('{NA}')
         f.write(' \\\\\n')
         if i != len(students)-1:
             f.write('\\midrule\n')
