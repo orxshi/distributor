@@ -5,6 +5,8 @@ import os as os
 from gui_subject import *
 from gui_status_bar import *
 import tkFileDialog
+from shutil import copyfile
+import os.path
 
 class MainWindow(Tk):
     subject_window = None
@@ -109,8 +111,8 @@ class MainWindow(Tk):
         for i in range(size):
             name = f.readline().strip()
             mn.subjects.append(mn.Subject(name=name))
-            size = int(f.readline().strip())
-            for i in range(size):
+            size_que = int(f.readline().strip())
+            for i in range(size_que):
                 q = f.readline().strip()
                 s = f.readline().strip()
                 mn.subjects[-1].q.append(mn.Question(q=q, s=s))
@@ -142,9 +144,12 @@ class MainWindow(Tk):
 
     def saveas(self):
         ftypes = [('Data files', '*.dat'), ('All files', '*')]
-        self.filename = tkFileDialog.asksaveasfilename(filetypes=ftypes, defaultextension=".dat")
-        if not self.filename:
+        fln = tkFileDialog.asksaveasfilename(filetypes=ftypes, defaultextension=".dat")
+        #self.filename = tkFileDialog.asksaveasfilename(filetypes=ftypes, defaultextension=".dat")
+        if not fln:
             return
+        else:
+            self.filename = fln
         dirname = os.path.dirname(self.filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -155,11 +160,19 @@ class MainWindow(Tk):
     def save(self):
         if not self.filename:
             self.saveas()
-        else:
-            f = open(self.filename, "w+")
+        else: 
+            #if os.path.isfile(self.filename):
+                #copyfile(self.filename, self.filename+"original")
+            #f = open(self.filename, "w+")
+            f = open(self.filename+"original", "w+")
             f.seek(0)
             f.truncate()
-            self.write(f)
+            try:
+                self.write(f)
+            except IOError:
+                print("Could not save.")
+                return
+            os.rename(self.filename+"original",self.filename)
         self.status.set("Saved to " + os.path.basename(os.path.normpath(self.filename)))
 
     def new(self):
